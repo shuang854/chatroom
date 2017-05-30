@@ -41,7 +41,7 @@
         </form>
         <script>
             // socket connection, hide 'join room' form
-            var socket = io.connect('localhost:8080/');
+            var socket = io.connect('/');
             document.getElementById("joinroom").style.display = 'none';
             
             var join = document.querySelector("#join");

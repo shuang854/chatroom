@@ -14,6 +14,8 @@ var USER = function(USER_ID, ROOM_ID, sock) {
     return user;
 }
 
+app.set('port', (process.env.PORT || 5000));
+
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/client.html');
 });
@@ -101,6 +103,6 @@ io.on('connection', function(socket) {
     });
 })
 
-http.listen(8080, function(){
+http.listen(app.get('port'), function(){
     console.log('Server running...');
 });
