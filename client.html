@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Lobby</title>
+        <style>
+            body {background-color: powderblue;}
+            h1 {
+                color: royalblue;
+                font-family: monospace;
+                font-size: 300%;
+            }
+            p {
+                color: royalblue;
+                font-family: monospace;
+                font-size: 200%;
+            }
+            button {
+                font-family: monospace;
+            }
+            form {
+                font-family: monospace;
+            }
+            input {
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <script src="/socket.io/socket.io.js"></script>
+    <body>
+        <p id="intro" style="text-align: center">
+            Welcome to the chat! <br><br>
+            <button id="join">Join a room</button>
+            <button id="create">Create a new room</button>
+            <button id="update">Update room list</button>
+            <br>
+        </p>
+        <form id="joinroom" style="text-align: center">
+            <br>Room to join:<br>
+            <input type="text" id="room"><br>
+            <input type="submit" id="submission" value="Submit">
+        </form>
+        <script>
+            // socket connection, hide 'join room' form
+            var socket = io.connect('localhost:8080/');
+            document.getElementById("joinroom").style.display = 'none';
+            
+            var join = document.querySelector("#join");
+            var create = document.querySelector("#create");
+            var update = document.querySelector("#update");
+            
+            // update list of rooms
+            var ROOM_LIST = [];
+            var t = document.createTextNode("");
+            var p = document.getElementById("intro");
+            socket.on('getRooms', function(data) {
+                ROOM_LIST = data.rooms;
+                t = document.createTextNode(ROOM_LIST);
+                p.parentNode.appendChild(t);
+            });
+            
+            // create button action
+            create.addEventListener("click", function(event) {
+                var id = Math.floor(Math.random() * 10000);
+                socket.emit('creation', {ROOM_ID : id});
+                window.location.href = id;
+            });
+            
+            // join button action
+            join.addEventListener("click", function(event) {
+                document.getElementById("joinroom").style.display = 'block';
+                var submission = document.querySelector("#submission");
+                submission.addEventListener("click", function(event) {
+                    var id = document.getElementById("room").value;
+                    socket.emit('checkRoom', {ROOM_ID : id});
+                    socket.on('roomExists', function(data) {
+                        if (data.state == true)
+                            window.location.href = id;
+                    });
+                });
+            });
+            
+            // update button action
+            update.addEventListener("click", function(event) {
+                socket.emit('updateRooms', {});
+                p.parentNode.removeChild(t);
+            });
+        </script>
+    </body>
+</html>

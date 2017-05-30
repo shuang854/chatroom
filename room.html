@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <title>New Room</title>
+        <style>
+            body { background-color: powderblue; }
+            #interface { position: fixed; bottom: 8px; width: 100%; }
+            #online { color: blue; font-size: 125%; }
+            #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none; }
+            #textbox { position: fixed; bottom: 8px; width: calc(100% - 175px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
+            #sendmsg { position: fixed; bottom: 8px; right: 8px; padding: 25px; background: skyblue; border: none; font-family: monospace; font-size: 125%; width: 150px; }
+            #login { color: royalblue; font-family: monospace; font-size: 150%; }
+            input { font-family: monospace; }
+            #messages { list-style-type: none; margin: 0; padding: 0; width: calc(100% - 159px); font-family: monospace }
+            #messages li { padding: 5px 10px; }
+            #messages li:nth-child(odd) { background: #eee; }
+        </style>
+    </head>
+    <script src="/socket.io/socket.io.js"></script>
+    <body>
+        <form id="login" style="text-align: center">
+            <br>LOGIN<br>
+            Username:<br>
+            <input type="text" id="userID" name="username"><br><br>
+            <input type="submit" id="submission" value="Submit">
+        </form>
+        <ul id="messages"></ul>
+        <form id="interface" action="" onsubmit="return false;">
+            <input id="textbox" autocomplete="off" /><button id="sendmsg">Send</button>
+        </form>
+        <ul id="list"><li id="online">Online:</li></ul>
+        <script>
+            var socket = io.connect('localhost:8080/');
+            var roomID = parseInt(parseURL(window.location.href).pathname.substring(1));
+            var submission = document.querySelector("#submission");
+            var interface = document.querySelector("#interface");
+            var messages = document.querySelector("#messages");
+            var sendmsg = document.querySelector("#sendmsg");
+            var online = document.querySelector("#list");
+            
+            interface.style.display = 'none';
+            messages.style.display = 'none';
+            online.style.display = 'none';
+            
+            socket.on('showMsg', function(data) {
+                var msg = document.createTextNode(data.USER_ID + ": " + data.MESSAGE);
+                var li = document.createElement('li');
+                li.appendChild(msg);
+                messages.appendChild(li);
+                document.getElementById("textbox").value = "";
+            });
+            
+            // retrieve list of users in room
+            socket.on('getUsers', function(data) {
+                while (online.childNodes.length > 1) {
+                    online.removeChild(online.lastChild);
+                }
+                var users = data.users;
+                var li = document.createElement('li');
+                for (var i = 0; i < users.length; i++) {
+                    if (users[i].roomid == roomID) {
+                        var n = document.createTextNode(users[i].username);
+                        li = document.createElement('li');
+                        li.appendChild(n);
+                        online.appendChild(li);
+                    }
+                }
+            });
+            
+            // process login information, remove login prompt, show chat interface
+            var username;
+            submission.addEventListener("click", function(event) {
+                var form = document.getElementById("login");
+                username = document.getElementById("userID").value;
+                socket.emit('joinRoom', {USER_ID : username, ROOM_ID : roomID});
+                form.parentNode.removeChild(form);
+                interface.style.display = 'block';
+                messages.style.display = 'block';
+                online.style.display = 'block';
+            });
+            
+            sendmsg.addEventListener("click", function(event) {
+                var msg = document.getElementById("textbox").value;
+                socket.emit('message', {MESSAGE : msg, ROOM_ID : roomID, USER_ID : username});
+            });
+            
+            function parseURL(href) {
+                var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+                return match && {
+                    href: href,
+                    protocol: match[1],
+                    host: match[2],
+                    hostname: match[3],
+                    port: match[4],
+                    pathname: match[5],
+                    search: match[6],
+                    hash: match[7]
+                }
+            }
+        </script>
+    </body>
+</html>
