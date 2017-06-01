@@ -6,12 +6,13 @@
             body { background-color: powderblue; }
             #interface { position: fixed; bottom: 8px; width: 100%; }
             #onlinelabel { color: blue; font-size: 125%; }
-            #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none; }
+            #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none;}
             #textbox { position: fixed; bottom: 8px; width: calc(100% - 225px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
             #sendmsg { position: fixed; bottom: 8px; right: 8px; padding: 25px; background: skyblue; border: none; font-family: monospace; font-size: 125%; width: 150px; }
             #login { color: royalblue; font-family: monospace; font-size: 150%; }
             input { font-family: monospace; }
-            #messages { list-style-type: none; margin: 0; padding: 0; width: calc(100% - 159px); font-family: monospace }
+            #chat { height: calc(100% - 95px); width: calc(100% - 175px); overflow-y: scroll; position: fixed; }
+            #messages { list-style-type: none; margin: 0; padding: 0; font-family: monospace; }
             #messages li { padding: 5px 10px; }
             #messages li:nth-child(odd) { background: #eee; }
         </style>
@@ -23,7 +24,9 @@
             <input type="text" id="userID" name="username"><br><br>
             <button id="submission">Submit</button>
         </form>
-        <ul id="messages"></ul>
+        <div id="chat">
+            <ul id="messages"></ul>
+        </div>
         <form id="interface" action="" onsubmit="return false;">
             <input id="textbox" autocomplete="off" /><button id="sendmsg">Send</button>
         </form>
@@ -35,19 +38,21 @@
             var submission = document.querySelector("#submission");
             var interface = document.querySelector("#interface");
             var messages = document.querySelector("#messages");
+            var chat = document.querySelector("#chat");
             var sendmsg = document.querySelector("#sendmsg");
             var online = document.querySelector("#list");
             
             interface.style.display = 'none';
             messages.style.display = 'none';
             online.style.display = 'none';
+            chat.style.display = 'none';
             
             socket.on('showMsg', function(data) {
                 var msg = document.createTextNode(data.USER_ID + ": " + data.MESSAGE);
                 var li = document.createElement('li');
                 li.appendChild(msg);
                 messages.appendChild(li);
-                document.getElementById("textbox").value = "";
+                chat.scrollTop = chat.scrollHeight;
             });
             
             socket.on('connectionMsg', function(data) {
@@ -85,12 +90,14 @@
                 interface.style.display = 'block';
                 messages.style.display = 'block';
                 online.style.display = 'block';
+                chat.style.display = 'block';
             });
             
             // send message
             interface.addEventListener("submit", function(event) {
                 var msg = document.getElementById("textbox").value;
                 socket.emit('message', {MESSAGE : msg, ROOM_ID : roomID, USER_ID : username});
+                document.getElementById("textbox").value = "";
             });
             
             function parseURL(href) {
