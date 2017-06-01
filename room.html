@@ -5,7 +5,7 @@
         <style>
             body { background-color: powderblue; }
             #interface { position: fixed; bottom: 8px; width: 100%; }
-            #online { color: blue; font-size: 125%; }
+            #onlinelabel { color: blue; font-size: 125%; }
             #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none; }
             #textbox { position: fixed; bottom: 8px; width: calc(100% - 225px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
             #sendmsg { position: fixed; bottom: 8px; right: 8px; padding: 25px; background: skyblue; border: none; font-family: monospace; font-size: 125%; width: 150px; }
@@ -27,7 +27,7 @@
         <form id="interface" action="" onsubmit="return false;">
             <input id="textbox" autocomplete="off" /><button id="sendmsg">Send</button>
         </form>
-        <ul id="list"><li id="online">Online:</li></ul>
+        <ul id="list"><li id="onlinelabel">Online:</li></ul>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var socket = io.connect('/');
@@ -48,6 +48,13 @@
                 li.appendChild(msg);
                 messages.appendChild(li);
                 document.getElementById("textbox").value = "";
+            });
+            
+            socket.on('connectionMsg', function(data) {
+                var msg = document.createTextNode(data.MESSAGE);
+                var li = document.createElement('li');
+                li.appendChild(msg);
+                messages.appendChild(li);
             });
             
             // retrieve list of users in room
@@ -80,6 +87,7 @@
                 online.style.display = 'block';
             });
             
+            // send message
             interface.addEventListener("submit", function(event) {
                 var msg = document.getElementById("textbox").value;
                 socket.emit('message', {MESSAGE : msg, ROOM_ID : roomID, USER_ID : username});

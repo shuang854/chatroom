@@ -50,6 +50,7 @@ io.on('connection', function(socket) {
         var user = USER(data.USER_ID, data.ROOM_ID, socket.id);
         USER_LIST.push(user);
         io.emit('getUsers', {users : USER_LIST});
+        io.to(data.ROOM_ID).emit('connectionMsg', {MESSAGE : user.username + " connected."});
     });
     
     // check if a room exists
@@ -80,6 +81,7 @@ io.on('connection', function(socket) {
         for (var i = 0; i < USER_LIST.length; i++) {
             if (USER_LIST[i].socketid == socket.id) {
                 roomleft = USER_LIST[i].roomid;
+                io.to(roomleft).emit('connectionMsg', {MESSAGE : USER_LIST[i].username + " disconnected."});
                 USER_LIST.splice(i, 1);
             }
         }
