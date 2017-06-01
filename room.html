@@ -7,7 +7,7 @@
             #interface { position: fixed; bottom: 8px; width: 100%; }
             #online { color: blue; font-size: 125%; }
             #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none; }
-            #textbox { position: fixed; bottom: 8px; width: calc(100% - 175px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
+            #textbox { position: fixed; bottom: 8px; width: calc(100% - 225px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
             #sendmsg { position: fixed; bottom: 8px; right: 8px; padding: 25px; background: skyblue; border: none; font-family: monospace; font-size: 125%; width: 150px; }
             #login { color: royalblue; font-family: monospace; font-size: 150%; }
             input { font-family: monospace; }
@@ -21,13 +21,12 @@
             <br>LOGIN<br>
             Username:<br>
             <input type="text" id="userID" name="username"><br><br>
-            <input type="submit" id="submission" value="Submit">
+            <button id="submission">Submit</button>
         </form>
         <ul id="messages"></ul>
         <form id="interface" action="" onsubmit="return false;">
-            <input id="textbox" autocomplete="off" />
+            <input id="textbox" autocomplete="off" /><button id="sendmsg">Send</button>
         </form>
-        <button id="sendmsg">Send</button>
         <ul id="list"><li id="online">Online:</li></ul>
         <script src="/socket.io/socket.io.js"></script>
         <script>
@@ -70,7 +69,8 @@
             
             // process login information, remove login prompt, show chat interface
             var username;
-            submission.addEventListener("click", function(event) {
+            login.addEventListener("submit", function(event) {
+                event.preventDefault();
                 var form = document.getElementById("login");
                 username = document.getElementById("userID").value;
                 socket.emit('joinRoom', {USER_ID : username, ROOM_ID : roomID});
@@ -80,7 +80,7 @@
                 online.style.display = 'block';
             });
             
-            sendmsg.addEventListener("click", function(event) {
+            interface.addEventListener("submit", function(event) {
                 var msg = document.getElementById("textbox").value;
                 socket.emit('message', {MESSAGE : msg, ROOM_ID : roomID, USER_ID : username});
             });
