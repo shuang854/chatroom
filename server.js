@@ -21,8 +21,15 @@ app.get('/', function(req, res) {
 });
 
 var room;
-app.get('/:room', function(req, res) {
-    res.sendFile(__dirname + '/room.html');
+app.get('/*', function(req, res) {
+    var url = req.path.substring(1);
+    for (var i = 0; i < ROOM_LIST.length; i++) {
+        if (ROOM_LIST[i] == url) {
+            res.sendFile(__dirname + '/room.html');
+            return;
+        }
+    }
+    res.status(404).send('404: Room does not exist.');
 });
 
 io.on('connection', function(socket) {

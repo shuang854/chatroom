@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>New Room</title>
+        <title>Chatroom</title>
         <style>
             body { background-color: powderblue; }
             #interface { position: fixed; bottom: 8px; width: 100%; }
@@ -9,9 +9,11 @@
             #list { background: #eee; margin: 0; padding: 10px; height: calc(100% - 115px); width: 130px; position: fixed; top: 8px; right: 8px; font-family: monospace; list-style-type: none;}
             #textbox { position: fixed; bottom: 8px; width: calc(100% - 225px); margin-right: 100px; border: 0; padding: 25px; font-size: 125%; }
             #sendmsg { position: fixed; bottom: 8px; right: 8px; padding: 25px; background: skyblue; border: none; font-family: monospace; font-size: 125%; width: 150px; }
-            #login { color: royalblue; font-family: monospace; font-size: 150%; }
+            #login { font-family: monospace; font-size: 125%; }
+            #loginlabel { font-family: monospace; font-size: 150%; color: royalblue; }
             input { font-family: monospace; }
-            #chat { height: calc(100% - 95px); width: calc(100% - 175px); overflow-y: scroll; position: fixed; }
+            #submission { font-family: monospace; padding: 10px; background: skyblue; border: none; }
+            #chat { height: calc(100% - 95px); width: calc(100% - 175px); overflow-y: scroll; overflow-x: hidden; position: fixed; }
             #messages { list-style-type: none; margin: 0; padding: 0; font-family: monospace; }
             #messages li { padding: 5px 10px; }
             #messages li:nth-child(odd) { background: #eee; }
@@ -19,9 +21,9 @@
     </head>
     <body>
         <form id="login" style="text-align: center">
-            <br>LOGIN<br>
+            <p id="loginlabel"><br><br>Login<br></p>
             Username:<br>
-            <input type="text" id="userID" name="username"><br><br>
+            <input type="text" id="userID" maxlength="16"><br><br>
             <button id="submission">Submit</button>
         </form>
         <div id="chat">
